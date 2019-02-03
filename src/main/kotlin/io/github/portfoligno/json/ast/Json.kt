@@ -103,15 +103,51 @@ data class JsonBigDecimal(override val value: BigDecimal) : JsonFractional() {
       generator.writeNumber(value)
 
   override
+  fun hashCode(): Int =
+      value.toDouble().hashCode()
+
+  override
+  fun equals(other: Any?): Boolean =
+      when (other) {
+        is JsonBigDecimal -> value.compareTo(other.value) == 0
+        is JsonDouble -> value.compareTo(other.value.toBigDecimal()) == 0
+        is JsonFloat -> value.compareTo(other.value.toBigDecimal()) == 0
+        is JsonBigInteger -> value.compareTo(other.value.toBigDecimal()) == 0
+        is JsonLong -> value.compareTo(other.value.toBigDecimal()) == 0
+        is JsonInteger -> value.compareTo(other.value.toBigDecimal()) == 0
+        else -> false
+      }
+
+  override
   fun toString(): String =
       super.toString()
 }
 
 @JsonDeserialize(using = JsonDoubleDeserializer::class)
 data class JsonDouble(override val value: Double) : JsonFractional() {
+  init {
+    require(value.isFinite())
+  }
+
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
+
+  override
+  fun hashCode(): Int =
+      value.hashCode()
+
+  override
+  fun equals(other: Any?): Boolean =
+      when (other) {
+        is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
+        is JsonDouble -> value == other.value
+        is JsonFloat -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonBigInteger -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonLong -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonInteger -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        else -> false
+      }
 
   override
   fun toString(): String =
@@ -120,9 +156,29 @@ data class JsonDouble(override val value: Double) : JsonFractional() {
 
 @JsonDeserialize(using = JsonFloatDeserializer::class)
 data class JsonFloat(override val value: Float) : JsonFractional() {
+  init {
+    require(value.isFinite())
+  }
+
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
+
+  override
+  fun hashCode(): Int =
+      value.toDouble().hashCode()
+
+  override
+  fun equals(other: Any?): Boolean =
+      when (other) {
+        is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
+        is JsonDouble -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonFloat -> value == other.value
+        is JsonBigInteger -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonLong -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonInteger -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        else -> false
+      }
 
   override
   fun toString(): String =
@@ -137,6 +193,22 @@ data class JsonBigInteger(override val value: BigInteger) : JsonIntegral() {
       generator.writeNumber(value)
 
   override
+  fun hashCode(): Int =
+      value.toDouble().hashCode()
+
+  override
+  fun equals(other: Any?): Boolean =
+      when (other) {
+        is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
+        is JsonDouble -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonFloat -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonBigInteger -> value == other.value
+        is JsonLong -> value == other.value.toBigInteger()
+        is JsonInteger -> value == other.value.toBigInteger()
+        else -> false
+      }
+
+  override
   fun toString(): String =
       super.toString()
 }
@@ -148,6 +220,22 @@ data class JsonLong(override val value: Long) : JsonIntegral() {
       generator.writeNumber(value)
 
   override
+  fun hashCode(): Int =
+      value.toDouble().hashCode()
+
+  override
+  fun equals(other: Any?): Boolean =
+      when (other) {
+        is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
+        is JsonDouble -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonFloat -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonBigInteger -> value.toBigInteger() == other.value
+        is JsonLong -> value == other.value
+        is JsonInteger -> value == other.value.toLong()
+        else -> false
+      }
+
+  override
   fun toString(): String =
       super.toString()
 }
@@ -157,6 +245,22 @@ data class JsonInteger(override val value: Int) : JsonIntegral() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
+
+  override
+  fun hashCode(): Int =
+      value.toDouble().hashCode()
+
+  override
+  fun equals(other: Any?): Boolean =
+      when (other) {
+        is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
+        is JsonDouble -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonFloat -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonBigInteger -> value.toBigInteger() == other.value
+        is JsonLong -> value.toLong() == other.value
+        is JsonInteger -> value == other.value
+        else -> false
+      }
 
   override
   fun toString(): String =

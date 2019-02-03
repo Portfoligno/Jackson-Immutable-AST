@@ -39,4 +39,8 @@ class JsonCodecSpec : StringSpec({
     val s = m.writeValueAsString(this)
     m.writeValueAsString(m.readValue<Json>(s)) shouldBe s
   }
+  """plainValue should have the same output""" {
+    val json = m.convertValue<Json>(this)
+    m.writeValueAsString(json.plainValue) shouldBe m.writeValueAsString(json)
+  }
 })

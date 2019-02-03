@@ -4,16 +4,19 @@ package io.github.portfoligno.json.ast
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.google.common.collect.ImmutableList
-import com.google.common.collect.ImmutableMap
+import com.google.common.collect.*
 import io.github.portfoligno.json.ast.codec.*
 import java.math.BigDecimal
 import java.math.BigInteger
+import kotlin.collections.Map.Entry
 
 @JsonDeserialize(using = JsonDeserializer::class)
 @JsonSerialize(using = JsonSerializer::class)
 sealed class Json {
   abstract val value: Any?
+
+  open val plainValue: Any?
+    get() = value
 
   internal
   abstract fun toTokens(generator: JsonGenerator)
@@ -21,6 +24,26 @@ sealed class Json {
   override
   fun toString(): String =
       "${javaClass.simpleName}($value)"
+
+  companion object {
+    @JvmStatic
+    fun from(value: Any?): Json =
+        when (value) {
+          null -> JsonNull
+          false -> JsonFalse
+          true -> JsonTrue
+          is String -> JsonString(value)
+          is BigDecimal -> JsonBigDecimal(value)
+          is Double -> JsonDouble(value)
+          is Float -> JsonFloat(value)
+          is BigInteger -> JsonBigInteger(value)
+          is Long -> JsonLong(value)
+          is Int -> JsonInteger(value)
+          is Iterable<*> -> JsonArray.from(value)
+          is Map<*, *> -> JsonObject.from(value.entries)
+          else -> throw IllegalArgumentException(value.toString())
+        }
+  }
 }
 
 
@@ -29,6 +52,10 @@ object JsonNull : Json() {
   override
   val value: Nothing?
     get() = null
+
+  override
+  val plainValue: Nothing?
+    get() = value
 
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -43,6 +70,10 @@ object JsonNull : Json() {
 sealed class JsonNonNull : Json() {
   override
   abstract val value: Any
+
+  override
+  val plainValue: Any
+    get() = value
 }
 
 
@@ -56,6 +87,10 @@ sealed class JsonCollection : JsonNonNull()
 @JsonDeserialize(using = JsonBooleanDeserializer::class)
 sealed class JsonBoolean(override val value: Boolean) : JsonPrimitive() {
   override
+  val plainValue: Boolean
+    get() = value
+
+  override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeBoolean(value)
 
@@ -66,6 +101,10 @@ sealed class JsonBoolean(override val value: Boolean) : JsonPrimitive() {
 
 @JsonDeserialize(using = JsonStringDeserializer::class)
 data class JsonString(override val value: String) : JsonPrimitive() {
+  override
+  val plainValue: String
+    get() = value
+
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeString(value)
@@ -79,6 +118,10 @@ data class JsonString(override val value: String) : JsonPrimitive() {
 sealed class JsonNumber : JsonPrimitive() {
   override
   abstract val value: Number
+
+  override
+  val plainValue: Number
+    get() = value
 }
 
 
@@ -98,6 +141,10 @@ sealed class JsonIntegral : JsonNumber()
 
 @JsonDeserialize(using = JsonBigDecimalDeserializer::class)
 data class JsonBigDecimal(override val value: BigDecimal) : JsonFractional() {
+  override
+  val plainValue: BigDecimal
+    get() = value
+
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -128,6 +175,10 @@ data class JsonDouble(override val value: Double) : JsonFractional() {
   init {
     require(value.isFinite())
   }
+
+  override
+  val plainValue: Double
+    get() = value
 
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -161,6 +212,10 @@ data class JsonFloat(override val value: Float) : JsonFractional() {
   }
 
   override
+  val plainValue: Float
+    get() = value
+
+  override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
 
@@ -189,6 +244,10 @@ data class JsonFloat(override val value: Float) : JsonFractional() {
 @JsonDeserialize(using = JsonBigIntegerDeserializer::class)
 data class JsonBigInteger(override val value: BigInteger) : JsonIntegral() {
   override
+  val plainValue: BigInteger
+    get() = value
+
+  override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
 
@@ -216,6 +275,10 @@ data class JsonBigInteger(override val value: BigInteger) : JsonIntegral() {
 @JsonDeserialize(using = JsonLongDeserializer::class)
 data class JsonLong(override val value: Long) : JsonIntegral() {
   override
+  val plainValue: Long
+    get() = value
+
+  override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
 
@@ -242,6 +305,10 @@ data class JsonLong(override val value: Long) : JsonIntegral() {
 
 @JsonDeserialize(using = JsonIntegerDeserializer::class)
 data class JsonInteger(override val value: Int) : JsonIntegral() {
+  override
+  val plainValue: Int
+    get() = value
+
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -275,6 +342,10 @@ data class JsonArray(private val elements: ImmutableList<Json>) : JsonCollection
     get() = elements
 
   override
+  val plainValue: List<Any?>
+    get() = Lists.transform(elements) { it!!.plainValue }
+
+  override
   fun toTokens(generator: JsonGenerator) {
     generator.writeStartArray(elements.size)
     elements.forEach {
@@ -286,6 +357,12 @@ data class JsonArray(private val elements: ImmutableList<Json>) : JsonCollection
   override
   fun toString(): String =
       super.toString()
+
+  companion object {
+    @JvmStatic
+    fun from(value: Iterable<Any?>): JsonArray =
+        JsonArray(ImmutableList.copyOf(Iterables.transform(value, Json.Companion::from)))
+  }
 }
 
 @JsonDeserialize(using = JsonObjectDeserializer::class)
@@ -293,6 +370,10 @@ data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonCo
   override
   val value: Map<String, Json>
     get() = elements
+
+  override
+  val plainValue: Map<String, Any?>
+    get() = Maps.transformValues(elements) { it!!.plainValue }
 
   override
   fun toTokens(generator: JsonGenerator) {
@@ -307,4 +388,18 @@ data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonCo
   override
   fun toString(): String =
       super.toString()
+
+  companion object {
+    @JvmStatic
+    fun from(value: Map<String, Any?>): JsonObject =
+        from(value.entries)
+
+    @Suppress("UnstableApiUsage")
+    internal
+    fun from(entries: Iterable<Entry<*, *>>): JsonObject =
+        JsonObject(ImmutableMap.copyOf(Iterables.transform(entries) {
+          val (k, v) = it!!
+          Maps.immutableEntry(k as? String ?: throw IllegalArgumentException(k.toString()), from(v))
+        }))
+  }
 }

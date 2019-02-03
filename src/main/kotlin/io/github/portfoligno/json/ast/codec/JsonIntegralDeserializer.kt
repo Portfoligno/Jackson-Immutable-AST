@@ -2,7 +2,7 @@ package io.github.portfoligno.json.ast.codec
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonParser.NumberType.*
-import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_INT
 import com.fasterxml.jackson.databind.DeserializationContext
 import io.github.portfoligno.json.ast.JsonBigInteger
 import io.github.portfoligno.json.ast.JsonInteger
@@ -10,13 +10,8 @@ import io.github.portfoligno.json.ast.JsonIntegral
 import io.github.portfoligno.json.ast.JsonLong
 
 internal
-object JsonIntegralDeserializer : Deserializer<JsonIntegral>() {
+object JsonIntegralDeserializer : ExpectedTokenDeserializer<JsonIntegral>(VALUE_NUMBER_INT) {
   override
-  fun deserialize(p: JsonParser, ctxt: DeserializationContext): JsonIntegral {
-    checkCurrentToken(p, ctxt, JsonToken.VALUE_NUMBER_INT)
-    return invoke(p, ctxt)
-  }
-
   operator fun invoke(p: JsonParser, context: DeserializationContext): JsonIntegral =
       when (p.numberType) {
         INT -> JsonInteger(p.intValue)

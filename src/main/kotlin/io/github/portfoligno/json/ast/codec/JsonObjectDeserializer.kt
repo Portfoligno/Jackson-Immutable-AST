@@ -8,17 +8,8 @@ import com.google.common.collect.ImmutableMap
 import io.github.portfoligno.json.ast.*
 
 internal
-object JsonObjectDeserializer : Deserializer<JsonObject>() {
+object JsonObjectDeserializer : ExpectedTokenDeserializer<JsonObject>(START_OBJECT) {
   override
-  fun deserialize(p: JsonParser, ctxt: DeserializationContext): JsonObject {
-    when (p.currentToken) {
-      START_OBJECT -> Unit
-      VALUE_EMBEDDED_OBJECT -> Unit
-      else -> throw reportWrongTokenException(ctxt, START_OBJECT)
-    }
-    return invoke(p, ctxt)
-  }
-
   operator fun invoke(p: JsonParser, context: DeserializationContext): JsonObject {
     val elements = ImmutableMap.builder<String, Json>()
 
@@ -34,7 +25,7 @@ object JsonObjectDeserializer : Deserializer<JsonObject>() {
               START_OBJECT -> invoke(p, context)
               START_ARRAY -> JsonArrayDeserializer(p, context)
               VALUE_EMBEDDED_OBJECT -> JsonDeserializer.fromEmbedded(p, context)
-              VALUE_STRING -> JsonStringDeserializer(p)
+              VALUE_STRING -> JsonStringDeserializer(p, context)
               VALUE_NUMBER_INT -> JsonIntegralDeserializer(p, context)
               VALUE_NUMBER_FLOAT -> JsonFractionalDeserializer(p, context)
               VALUE_TRUE -> JsonTrue

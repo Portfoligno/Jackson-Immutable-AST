@@ -7,13 +7,8 @@ import com.google.common.collect.ImmutableList
 import io.github.portfoligno.json.ast.*
 
 internal
-object JsonArrayDeserializer : Deserializer<JsonArray>() {
+object JsonArrayDeserializer : ExpectedTokenDeserializer<JsonArray>(START_ARRAY) {
   override
-  fun deserialize(p: JsonParser, ctxt: DeserializationContext): JsonArray {
-    checkCurrentToken(p, ctxt, START_ARRAY)
-    return invoke(p, ctxt)
-  }
-
   operator fun invoke(p: JsonParser, context: DeserializationContext): JsonArray {
     val elements = ImmutableList.builder<Json>()
 
@@ -24,7 +19,7 @@ object JsonArrayDeserializer : Deserializer<JsonArray>() {
           START_OBJECT -> JsonObjectDeserializer(p, context)
           START_ARRAY -> invoke(p, context)
           VALUE_EMBEDDED_OBJECT -> JsonDeserializer.fromEmbedded(p, context)
-          VALUE_STRING -> JsonStringDeserializer(p)
+          VALUE_STRING -> JsonStringDeserializer(p, context)
           VALUE_NUMBER_INT -> JsonIntegralDeserializer(p, context)
           VALUE_NUMBER_FLOAT -> JsonFractionalDeserializer(p, context)
           VALUE_TRUE -> JsonTrue

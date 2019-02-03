@@ -24,7 +24,7 @@ object JsonDeserializer : Deserializer<Json>() {
         START_OBJECT -> JsonObjectDeserializer(p, context)
         START_ARRAY -> JsonArrayDeserializer(p, context)
         VALUE_EMBEDDED_OBJECT -> fromEmbedded(p, context)
-        VALUE_STRING -> JsonStringDeserializer(p)
+        VALUE_STRING -> JsonStringDeserializer(p, context)
         VALUE_NUMBER_INT -> JsonIntegralDeserializer(p, context)
         VALUE_NUMBER_FLOAT -> JsonFractionalDeserializer(p, context)
         VALUE_TRUE -> JsonTrue
@@ -36,6 +36,6 @@ object JsonDeserializer : Deserializer<Json>() {
   fun fromEmbedded(p: JsonParser, context: DeserializationContext): Json =
       p.codec.readValue(p, TokenBuffer::class.java).asParser().run {
         nextToken()
-        invoke(this, context)
+        JsonDeserializer.invoke(this, context)
       }
 }

@@ -29,4 +29,10 @@ class JsonCodecSpec : StringSpec({
         m.nodeFactory,
         listOf(POJONode(1), POJONode(this))))
   }
+  """writeValueAsString(JsonNull) should be "null""" {
+    m.writeValueAsString(JsonNull) shouldBe "null"
+  }
+  """writeValueAsString(JsonFalse) should be "false"""" {
+    m.writeValueAsString(JsonFalse) shouldBe "false"
+  }
 })

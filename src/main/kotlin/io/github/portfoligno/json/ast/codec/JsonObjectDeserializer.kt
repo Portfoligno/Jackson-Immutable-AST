@@ -10,7 +10,7 @@ import io.github.portfoligno.json.ast.*
 internal
 object JsonObjectDeserializer : ExpectedTokenDeserializer<JsonObject>(START_OBJECT) {
   override
-  operator fun invoke(p: JsonParser, context: DeserializationContext): JsonObject {
+  fun invoke(p: JsonParser, context: DeserializationContext): JsonObject {
     val elements = ImmutableMap.builder<String, Json>()
 
     apply loop@{

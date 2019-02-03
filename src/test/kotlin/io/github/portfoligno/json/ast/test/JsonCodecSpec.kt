@@ -35,4 +35,8 @@ class JsonCodecSpec : StringSpec({
   """writeValueAsString(JsonFalse) should be "false"""" {
     m.writeValueAsString(JsonFalse) shouldBe "false"
   }
+  """Round-trip should work""" {
+    val s = m.writeValueAsString(this)
+    m.writeValueAsString(m.readValue<Json>(s)) shouldBe s
+  }
 })

@@ -9,7 +9,7 @@ import io.github.portfoligno.json.ast.*
 internal
 object JsonArrayDeserializer : ExpectedTokenDeserializer<JsonArray>(START_ARRAY) {
   override
-  operator fun invoke(p: JsonParser, context: DeserializationContext): JsonArray {
+  fun invoke(p: JsonParser, context: DeserializationContext): JsonArray {
     val elements = ImmutableList.builder<Json>()
 
     apply loop@{

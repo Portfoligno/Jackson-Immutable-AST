@@ -8,6 +8,6 @@ import io.github.portfoligno.json.ast.JsonString
 internal
 object JsonStringDeserializer : ExpectedTokenDeserializer<JsonString>(VALUE_STRING) {
   override
-  operator fun invoke(p: JsonParser, context: DeserializationContext): JsonString =
+  fun invoke(p: JsonParser, context: DeserializationContext): JsonString =
       JsonString(p.valueAsString)
 }

@@ -24,6 +24,7 @@ sealed class Json {
 }
 
 
+@JsonDeserialize(using = JsonNullDeserializer::class)
 object JsonNull : Json() {
   override
   val value: Nothing?
@@ -38,17 +39,21 @@ object JsonNull : Json() {
       javaClass.simpleName
 }
 
+@JsonDeserialize(using = JsonNonNullDeserializer::class)
 sealed class JsonNonNull : Json() {
   override
   abstract val value: Any
 }
 
 
+@JsonDeserialize(using = JsonPrimitiveDeserializer::class)
 sealed class JsonPrimitive : JsonNonNull()
 
-sealed class JsonContainer : JsonNonNull()
+@JsonDeserialize(using = JsonCollectionDeserializer::class)
+sealed class JsonCollection : JsonNonNull()
 
 
+@JsonDeserialize(using = JsonBooleanDeserializer::class)
 sealed class JsonBoolean(override val value: Boolean) : JsonPrimitive() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -70,14 +75,17 @@ data class JsonString(override val value: String) : JsonPrimitive() {
       super.toString()
 }
 
+@JsonDeserialize(using = JsonNumberDeserializer::class)
 sealed class JsonNumber : JsonPrimitive() {
   override
   abstract val value: Number
 }
 
 
+@JsonDeserialize(using = JsonFalseDeserializer::class)
 object JsonFalse : JsonBoolean(false)
 
+@JsonDeserialize(using = JsonTrueDeserializer::class)
 object JsonTrue : JsonBoolean(true)
 
 
@@ -88,6 +96,7 @@ sealed class JsonFractional : JsonNumber()
 sealed class JsonIntegral : JsonNumber()
 
 
+@JsonDeserialize(using = JsonBigDecimalDeserializer::class)
 data class JsonBigDecimal(override val value: BigDecimal) : JsonFractional() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -98,6 +107,7 @@ data class JsonBigDecimal(override val value: BigDecimal) : JsonFractional() {
       super.toString()
 }
 
+@JsonDeserialize(using = JsonDoubleDeserializer::class)
 data class JsonDouble(override val value: Double) : JsonFractional() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -108,6 +118,7 @@ data class JsonDouble(override val value: Double) : JsonFractional() {
       super.toString()
 }
 
+@JsonDeserialize(using = JsonFloatDeserializer::class)
 data class JsonFloat(override val value: Float) : JsonFractional() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -119,6 +130,7 @@ data class JsonFloat(override val value: Float) : JsonFractional() {
 }
 
 
+@JsonDeserialize(using = JsonBigIntegerDeserializer::class)
 data class JsonBigInteger(override val value: BigInteger) : JsonIntegral() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -129,6 +141,7 @@ data class JsonBigInteger(override val value: BigInteger) : JsonIntegral() {
       super.toString()
 }
 
+@JsonDeserialize(using = JsonLongDeserializer::class)
 data class JsonLong(override val value: Long) : JsonIntegral() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -139,6 +152,7 @@ data class JsonLong(override val value: Long) : JsonIntegral() {
       super.toString()
 }
 
+@JsonDeserialize(using = JsonIntegerDeserializer::class)
 data class JsonInteger(override val value: Int) : JsonIntegral() {
   override
   fun toTokens(generator: JsonGenerator): Unit =
@@ -151,7 +165,7 @@ data class JsonInteger(override val value: Int) : JsonIntegral() {
 
 
 @JsonDeserialize(using = JsonArrayDeserializer::class)
-data class JsonArray(private val elements: ImmutableList<Json>) : JsonContainer() {
+data class JsonArray(private val elements: ImmutableList<Json>) : JsonCollection() {
   override
   val value: List<Json>
     get() = elements
@@ -171,7 +185,7 @@ data class JsonArray(private val elements: ImmutableList<Json>) : JsonContainer(
 }
 
 @JsonDeserialize(using = JsonObjectDeserializer::class)
-data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonContainer() {
+data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonCollection() {
   override
   val value: Map<String, Json>
     get() = elements

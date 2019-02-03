@@ -19,4 +19,7 @@ dependencies {
   implementation(kotlin("stdlib"))
   implementation("com.google.guava:guava:27.0.1-jre")
   compileOnly("com.fasterxml.jackson.core:jackson-databind:2.9.8")
+
+  testImplementation("io.kotlintest:kotlintest-runner-junit5:3.2.1")
+  testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8")
 }

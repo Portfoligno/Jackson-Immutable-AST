@@ -1,11 +1,14 @@
 @file:Suppress("SortModifiers")
 package io.github.portfoligno.json.ast
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
+import io.github.portfoligno.json.ast.codec.*
 import java.math.BigDecimal
 import java.math.BigInteger
 
+@JsonDeserialize(using = JsonDeserializer::class)
 sealed class Json {
   abstract val value: Any?
 
@@ -42,6 +45,7 @@ sealed class JsonBoolean(override val value: Boolean) : JsonPrimitive() {
       javaClass.simpleName
 }
 
+@JsonDeserialize(using = JsonStringDeserializer::class)
 data class JsonString(override val value: String) : JsonPrimitive() {
   override
   fun toString(): String =
@@ -59,8 +63,10 @@ object JsonFalse : JsonBoolean(false)
 object JsonTrue : JsonBoolean(true)
 
 
+@JsonDeserialize(using = JsonFractionalDeserializer::class)
 sealed class JsonFractional : JsonNumber()
 
+@JsonDeserialize(using = JsonIntegralDeserializer::class)
 sealed class JsonIntegral : JsonNumber()
 
 
@@ -102,6 +108,7 @@ data class JsonInteger(override val value: Int) : JsonIntegral() {
 }
 
 
+@JsonDeserialize(using = JsonArrayDeserializer::class)
 data class JsonArray(private val elements: ImmutableList<Json>) : JsonContainer() {
   override
   val value: List<Json>
@@ -112,6 +119,7 @@ data class JsonArray(private val elements: ImmutableList<Json>) : JsonContainer(
       super.toString()
 }
 
+@JsonDeserialize(using = JsonObjectDeserializer::class)
 data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonContainer() {
   override
   val value: Map<String, Json>

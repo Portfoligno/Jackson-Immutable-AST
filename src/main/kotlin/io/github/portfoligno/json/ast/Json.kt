@@ -77,7 +77,7 @@ sealed class JsonNonNull : Json() {
 
   companion object {
     @JvmStatic
-    fun from(value: Any): Json =
+    fun from(value: Any): JsonNonNull =
         when (value) {
           false -> JsonFalse
           true -> JsonTrue

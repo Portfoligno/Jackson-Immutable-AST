@@ -16,7 +16,9 @@ repositories {
   jcenter()
 }
 dependencies {
-  implementation(kotlin("stdlib"))
+  implementation(create(kotlin("stdlib"), closureOf<ExternalModuleDependency> {
+    exclude("org.jetbrains", "annotations")
+  }))
   implementation("com.google.guava:guava:27.0.1-jre")
   compileOnly("com.fasterxml.jackson.core:jackson-databind:2.9.8")
 

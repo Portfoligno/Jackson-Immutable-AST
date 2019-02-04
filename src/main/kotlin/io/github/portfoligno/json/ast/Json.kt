@@ -74,6 +74,25 @@ sealed class JsonNonNull : Json() {
   override
   val plainValue: Any
     get() = value
+
+  companion object {
+    @JvmStatic
+    fun from(value: Any): Json =
+        when (value) {
+          false -> JsonFalse
+          true -> JsonTrue
+          is String -> JsonString(value)
+          is BigDecimal -> JsonBigDecimal(value)
+          is Double -> JsonDouble(value)
+          is Float -> JsonFloat(value)
+          is BigInteger -> JsonBigInteger(value)
+          is Long -> JsonLong(value)
+          is Int -> JsonInteger(value)
+          is Iterable<*> -> JsonArray.from(value)
+          is Map<*, *> -> JsonObject.from(value.entries)
+          else -> throw IllegalArgumentException(value.toString())
+        }
+  }
 }
 
 

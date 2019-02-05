@@ -18,6 +18,7 @@ sealed class Json {
   open val plainValue: Any?
     get() = value
 
+  @JvmSynthetic
   internal
   abstract fun toTokens(generator: JsonGenerator)
 
@@ -57,6 +58,7 @@ object JsonNull : Json() {
   val plainValue: Nothing?
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNull()
@@ -109,6 +111,7 @@ sealed class JsonBoolean(override val value: Boolean) : JsonPrimitive() {
   val plainValue: Boolean
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeBoolean(value)
@@ -124,6 +127,7 @@ data class JsonString(override val value: String) : JsonPrimitive() {
   val plainValue: String
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeString(value)
@@ -164,6 +168,7 @@ data class JsonBigDecimal(override val value: BigDecimal) : JsonFractional() {
   val plainValue: BigDecimal
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -199,6 +204,7 @@ data class JsonDouble(override val value: Double) : JsonFractional() {
   val plainValue: Double
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -234,6 +240,7 @@ data class JsonFloat(override val value: Float) : JsonFractional() {
   val plainValue: Float
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -266,6 +273,7 @@ data class JsonBigInteger(override val value: BigInteger) : JsonIntegral() {
   val plainValue: BigInteger
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -297,6 +305,7 @@ data class JsonLong(override val value: Long) : JsonIntegral() {
   val plainValue: Long
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -328,6 +337,7 @@ data class JsonInteger(override val value: Int) : JsonIntegral() {
   val plainValue: Int
     get() = value
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
       generator.writeNumber(value)
@@ -364,6 +374,7 @@ data class JsonArray(private val elements: ImmutableList<Json>) : JsonCollection
   val plainValue: List<Any?>
     get() = Lists.transform(elements) { it!!.plainValue }
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator) {
     generator.writeStartArray(elements.size)
@@ -394,6 +405,7 @@ data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonCo
   val plainValue: Map<String, Any?>
     get() = Maps.transformValues(elements) { it!!.plainValue }
 
+  @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator) {
     generator.writeStartObject(this)

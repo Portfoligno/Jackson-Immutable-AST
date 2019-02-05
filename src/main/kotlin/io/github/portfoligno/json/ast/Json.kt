@@ -413,12 +413,12 @@ data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonCo
     fun from(value: Map<String, Any?>): JsonObject =
         from(value.entries)
 
-    @Suppress("UnstableApiUsage")
     internal
     fun from(entries: Iterable<Entry<*, *>>): JsonObject =
-        JsonObject(ImmutableMap.copyOf(Iterables.transform(entries) {
-          val (k, v) = it!!
-          Maps.immutableEntry(k as? String ?: throw IllegalArgumentException(k.toString()), from(v))
-        }))
+        JsonObject(ImmutableMap.copyOf(
+            entries.associate { (k, v) ->
+              (k as? String ?: throw IllegalArgumentException(k.toString())) to from(v)
+            }
+        ))
   }
 }

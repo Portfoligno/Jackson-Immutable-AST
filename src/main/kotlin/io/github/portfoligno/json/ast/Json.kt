@@ -438,6 +438,7 @@ data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonCo
     fun from(value: Map<String, Any?>): JsonObject =
         from(value.entries)
 
+    @JvmSynthetic
     internal
     fun from(entries: Iterable<Entry<*, *>>): JsonObject =
         JsonObject(ImmutableMap.copyOf(

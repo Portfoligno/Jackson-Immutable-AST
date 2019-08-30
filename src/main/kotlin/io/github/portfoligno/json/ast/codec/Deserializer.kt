@@ -20,5 +20,5 @@ fun Deserializer<*>.reportInputMismatch(context: DeserializationContext, message
 
 
 internal
-fun JsonParser.readValueAsTokens(): JsonParser =
-    codec.readValue(this, TokenBuffer::class.java).asParser()
+fun JsonParser.currentValueTokens(context: DeserializationContext): JsonParser =
+    TokenBuffer(this).deserialize(this, context).asParser()

@@ -10,7 +10,7 @@ abstract class BaseDeserializer<A> : Deserializer<A>() {
   override
   fun deserialize(p: JsonParser, ctxt: DeserializationContext): A =
       when (p.currentToken) {
-        VALUE_EMBEDDED_OBJECT -> invoke(p.readValueAsTokens(), ctxt)
+        VALUE_EMBEDDED_OBJECT -> invoke(p.currentValueTokens(ctxt), ctxt)
         else -> invoke(p, ctxt)
       }
 
@@ -23,7 +23,7 @@ abstract class ExpectedTokenDeserializer<A>(private val expectedToken: JsonToken
   fun deserialize(p: JsonParser, ctxt: DeserializationContext): A =
       when (p.currentToken) {
         VALUE_EMBEDDED_OBJECT ->
-          p.readValueAsTokens().let {
+          p.currentValueTokens(ctxt).let {
             if (it.nextToken() !== expectedToken) {
               throw reportWrongTokenException(ctxt, expectedToken)
             }

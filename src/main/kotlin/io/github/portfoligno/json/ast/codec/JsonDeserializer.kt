@@ -26,7 +26,7 @@ object JsonDeserializer : BaseDeserializer<Json>() {
       }
 
   fun fromEmbedded(p: JsonParser, context: DeserializationContext): Json =
-      p.readValueAsTokens().let {
+      p.currentValueTokens(context).let {
         it.nextToken()
         invoke(it, context)
       }

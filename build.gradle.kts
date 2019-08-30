@@ -30,6 +30,10 @@ java {
   targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+tasks.withType<Test> {
+  useJUnitPlatform()
+}
+
 repositories {
   jcenter()
 }

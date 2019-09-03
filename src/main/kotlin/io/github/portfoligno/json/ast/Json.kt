@@ -44,6 +44,19 @@ sealed class Json {
           is Map<*, *> -> JsonObject.from(value.entries)
           else -> throw IllegalArgumentException(value.toString())
         }
+
+
+    // Default `toBigDecimal` causes loss of precisions
+    @JvmStatic
+    protected
+    fun Double.toBigDecimal() =
+        BigDecimal(this)
+
+    // Default `toBigDecimal` causes loss of precisions
+    @JvmStatic
+    protected
+    fun Float.toBigDecimal() =
+        BigDecimal(toDouble())
   }
 }
 
@@ -218,7 +231,7 @@ data class JsonDouble(override val value: Double) : JsonFractional() {
       when (other) {
         is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
         is JsonDouble -> value == other.value
-        is JsonFloat -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonFloat -> value == other.value.toDouble()
         is JsonBigInteger -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
         is JsonLong -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
         is JsonInteger -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
@@ -253,7 +266,7 @@ data class JsonFloat(override val value: Float) : JsonFractional() {
   fun equals(other: Any?): Boolean =
       when (other) {
         is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
-        is JsonDouble -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonDouble -> value.toDouble() == other.value
         is JsonFloat -> value == other.value
         is JsonBigInteger -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
         is JsonLong -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
@@ -350,8 +363,8 @@ data class JsonInteger(override val value: Int) : JsonIntegral() {
   fun equals(other: Any?): Boolean =
       when (other) {
         is JsonBigDecimal -> value.toBigDecimal().compareTo(other.value) == 0
-        is JsonDouble -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
-        is JsonFloat -> value.toBigDecimal().compareTo(other.value.toBigDecimal()) == 0
+        is JsonDouble -> value.toDouble() == other.value
+        is JsonFloat -> value.toDouble() == other.value.toDouble()
         is JsonBigInteger -> value.toBigInteger() == other.value
         is JsonLong -> value.toLong() == other.value
         is JsonInteger -> value == other.value

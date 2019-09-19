@@ -22,7 +22,7 @@ buildscript {
 }
 
 tasks.getByName<Wrapper>("wrapper") {
-  gradleVersion = "5.1.1"
+  gradleVersion = "5.6.2"
 }
 
 java {
@@ -34,7 +34,7 @@ repositories {
   jcenter()
 }
 dependencies {
-  implementation(create(kotlin("stdlib"), closureOf<ExternalModuleDependency> {
+  implementation(dependencies.create(kotlin("stdlib"), closureOf<ExternalModuleDependency> {
     exclude("org.jetbrains", "annotations")
   }))
   implementation("com.google.guava:guava:27.0.1-jre")

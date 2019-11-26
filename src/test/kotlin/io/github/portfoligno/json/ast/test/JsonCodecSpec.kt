@@ -1,3 +1,4 @@
+@file:Suppress("BlockingMethodInNonBlockingContext")
 package io.github.portfoligno.json.ast.test
 
 import com.fasterxml.jackson.databind.ObjectMapper

@@ -220,7 +220,7 @@ data class JsonDouble(override val value: Double) : JsonFractional() {
   @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
-      generator.writeNumber(value)
+      generator.writeNumber(value.toBigDecimal())
 
   override
   fun hashCode(): Int =
@@ -256,7 +256,7 @@ data class JsonFloat(override val value: Float) : JsonFractional() {
   @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator): Unit =
-      generator.writeNumber(value)
+      generator.writeNumber(value.toBigDecimal())
 
   override
   fun hashCode(): Int =

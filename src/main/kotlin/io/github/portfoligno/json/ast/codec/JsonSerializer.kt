@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import io.github.portfoligno.json.ast.Json
 
 internal
-object JsonSerializer : com.fasterxml.jackson.databind.JsonSerializer<Json>() {
+class JsonSerializer : com.fasterxml.jackson.databind.JsonSerializer<Json>() {
   override
   fun serialize(value: Json, gen: JsonGenerator, serializers: SerializerProvider): Unit =
       value.toTokens(gen)

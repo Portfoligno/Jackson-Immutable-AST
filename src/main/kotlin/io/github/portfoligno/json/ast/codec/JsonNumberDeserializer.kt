@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_FLOAT
 import com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_INT
 import com.fasterxml.jackson.databind.DeserializationContext
 import io.github.portfoligno.json.ast.*
+import java.math.BigDecimal
 
 internal
 class JsonNumberDeserializer : BaseDeserializer<JsonNumber>() {
@@ -20,87 +21,106 @@ class JsonNumberDeserializer : BaseDeserializer<JsonNumber>() {
 
 
 internal
-object JsonFractionalDeserializer : ExpectedTokenDeserializer<JsonFractional>(VALUE_NUMBER_FLOAT) {
+object JsonFractionalDeserializer : BaseDeserializer<JsonFractional>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonFractional =
-      when (p.numberType) {
-        FLOAT -> JsonFloat(p.floatValue)
-        DOUBLE -> JsonDouble(p.doubleValue)
-        BIG_DECIMAL -> JsonBigDecimal(p.decimalValue)
-        else -> throw reportInputMismatch(context, "Fractional value expected, but ${p.numberType} is found")
-      }
+      JsonBigDecimal(p.decimalValue)
 }
 
 internal
-object JsonIntegralDeserializer : ExpectedTokenDeserializer<JsonIntegral>(VALUE_NUMBER_INT) {
+object JsonIntegralDeserializer : BaseDeserializer<JsonIntegral>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonIntegral =
       when (p.numberType) {
         INT -> JsonInteger(p.intValue)
         LONG -> JsonLong(p.longValue)
         BIG_INTEGER -> JsonBigInteger(p.bigIntegerValue)
-        else -> throw reportInputMismatch(context, "Integral value expected, but ${p.numberType} is found")
+        else -> try {
+          JsonBigInteger(p.decimalValue.toBigIntegerExact())
+        } catch (_: ArithmeticException) {
+          throw reportWrongTokenException(context, VALUE_NUMBER_INT)
+        }
       }
 }
 
 
 internal
-object JsonBigDecimalDeserializer : ExpectedTokenDeserializer<JsonBigDecimal>(VALUE_NUMBER_FLOAT) {
+class JsonBigDecimalDeserializer : BaseDeserializer<JsonBigDecimal>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonBigDecimal =
-      when (p.numberType) {
-        BIG_DECIMAL -> JsonBigDecimal(p.decimalValue)
-        else -> throw reportInputMismatch(context, "BigDecimal expected, but ${p.numberType} is found")
-      }
+      JsonBigDecimal(p.decimalValue)
 }
 
 internal
-object JsonFloatDeserializer : ExpectedTokenDeserializer<JsonFloat>(VALUE_NUMBER_FLOAT) {
+class JsonFloatDeserializer : BaseDeserializer<JsonFloat>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonFloat =
-      when (p.numberType) {
-        FLOAT -> JsonFloat(p.floatValue)
-        else -> throw reportInputMismatch(context, "Float expected, but ${p.numberType} is found")
+      p.floatValue.let { parsed ->
+        if (BigDecimal(parsed.toDouble()).compareTo(p.decimalValue) == 0) {
+          JsonFloat(parsed)
+        } else {
+          val message = "FLOAT expected, but DOUBLE or BIG_DECIMAL (${p.decimalValue}) was found"
+          throw reportInputMismatch(context, message)
+        }
       }
 }
 
 internal
-object JsonDoubleDeserializer : ExpectedTokenDeserializer<JsonDouble>(VALUE_NUMBER_FLOAT) {
+class JsonDoubleDeserializer : BaseDeserializer<JsonDouble>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonDouble =
-      when (p.numberType) {
-        DOUBLE -> JsonDouble(p.doubleValue)
-        else -> throw reportInputMismatch(context, "Double expected, but ${p.numberType} is found")
+      p.doubleValue.let { parsed ->
+        if (BigDecimal(parsed).compareTo(p.decimalValue) == 0) {
+          JsonDouble(parsed)
+        } else {
+          val message = "DOUBLE expected, but BIG_DECIMAL (${p.decimalValue}) was found"
+          throw reportInputMismatch(context, message)
+        }
       }
 }
 
 
 internal
-object JsonBigIntegerDeserializer : ExpectedTokenDeserializer<JsonBigInteger>(VALUE_NUMBER_INT) {
+class JsonBigIntegerDeserializer : BaseDeserializer<JsonBigInteger>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonBigInteger =
-      when (p.numberType) {
-        BIG_INTEGER -> JsonBigInteger(p.bigIntegerValue)
-        else -> throw reportInputMismatch(context, "BigInteger expected, but ${p.numberType} is found")
+      when (p.currentToken()) {
+        VALUE_NUMBER_INT -> JsonBigInteger(p.bigIntegerValue)
+        VALUE_NUMBER_FLOAT -> try {
+          JsonBigInteger(p.decimalValue.toBigIntegerExact())
+        } catch (_: ArithmeticException) {
+          throw reportWrongTokenException(context, VALUE_NUMBER_INT)
+        }
+        else -> throw reportWrongTokenException(context, VALUE_NUMBER_INT)
       }
 }
 
 internal
-object JsonLongDeserializer : ExpectedTokenDeserializer<JsonLong>(VALUE_NUMBER_INT) {
+class JsonLongDeserializer : BaseDeserializer<JsonLong>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonLong =
-      when (p.numberType) {
-        LONG -> JsonLong(p.longValue)
-        else -> throw reportInputMismatch(context, "Long expected, but ${p.numberType} is found")
+      when (p.currentToken()) {
+        VALUE_NUMBER_INT -> JsonLong(p.longValue)
+        VALUE_NUMBER_FLOAT -> try {
+          JsonLong(p.decimalValue.longValueExact())
+        } catch (_: ArithmeticException) {
+          throw reportWrongTokenException(context, VALUE_NUMBER_INT)
+        }
+        else -> throw reportWrongTokenException(context, VALUE_NUMBER_INT)
       }
 }
 
 internal
-object JsonIntegerDeserializer : ExpectedTokenDeserializer<JsonInteger>(VALUE_NUMBER_INT) {
+class JsonIntegerDeserializer : BaseDeserializer<JsonInteger>() {
   override
   fun invoke(p: JsonParser, context: DeserializationContext): JsonInteger =
-      when (p.numberType) {
-        INT -> JsonInteger(p.intValue)
-        else -> throw reportInputMismatch(context, "Integer expected, but ${p.numberType} is found")
+      when (p.currentToken()) {
+        VALUE_NUMBER_INT -> JsonInteger(p.intValue)
+        VALUE_NUMBER_FLOAT -> try {
+          JsonInteger(p.decimalValue.intValueExact())
+        } catch (_: ArithmeticException) {
+          throw reportWrongTokenException(context, VALUE_NUMBER_INT)
+        }
+        else -> throw reportWrongTokenException(context, VALUE_NUMBER_INT)
       }
 }

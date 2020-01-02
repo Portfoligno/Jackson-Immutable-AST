@@ -22,6 +22,8 @@ object JsonDeserializer : BaseDeserializer<Json>() {
         VALUE_TRUE -> JsonTrue
         VALUE_FALSE -> JsonFalse
         VALUE_NULL -> JsonNull
+        // `JsonValue` has special handling that skips `START_OBJECT` prematurely
+        END_OBJECT, FIELD_NAME -> JsonObjectDeserializer(p, context, useCurrentToken = true)
         else -> throw reportWrongTokenException(context, VALUE_NULL)
       }
 
@@ -56,6 +58,8 @@ class JsonNonNullDeserializer : BaseDeserializer<JsonNonNull>() {
         VALUE_NUMBER_FLOAT -> JsonFractionalDeserializer(p, context)
         VALUE_TRUE -> JsonTrue
         VALUE_FALSE -> JsonFalse
+        // `JsonValue` has special handling that skips `START_OBJECT` prematurely
+        END_OBJECT, FIELD_NAME -> JsonObjectDeserializer(p, context, useCurrentToken = true)
         else -> throw reportWrongTokenException(context, VALUE_FALSE)
       }
 }
@@ -82,6 +86,8 @@ class JsonCollectionDeserializer : BaseDeserializer<JsonCollection>() {
       when (p.currentToken()) {
         START_OBJECT -> JsonObjectDeserializer(p, context)
         START_ARRAY -> JsonArrayDeserializer(p, context)
+        // `JsonValue` has special handling that skips `START_OBJECT` prematurely
+        END_OBJECT, FIELD_NAME -> JsonObjectDeserializer(p, context, useCurrentToken = true)
         else -> throw reportWrongTokenException(context, START_ARRAY)
       }
 }

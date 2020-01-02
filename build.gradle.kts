@@ -10,14 +10,14 @@ import java.nio.file.StandardOpenOption
 plugins {
   maven
   `java-library`
-  kotlin("jvm") version "1.3.20"
+  kotlin("jvm") version "1.3.61"
 }
 buildscript {
   repositories {
     jcenter()
   }
   dependencies {
-    classpath("org.ow2.asm:asm-tree:7.0")
+    classpath("org.ow2.asm:asm-tree:7.2")
   }
 }
 
@@ -41,17 +41,17 @@ dependencies {
   implementation(dependencies.create(kotlin("stdlib"), closureOf<ExternalModuleDependency> {
     exclude("org.jetbrains", "annotations")
   }))
-  implementation("com.google.guava:guava:27.0.1-jre") {
+  implementation("com.google.guava:guava:28.2-jre") {
     exclude("com.google.code.findbugs", "jsr305")
     exclude("org.checkerframework", "checker-qual")
     exclude("com.google.errorprone", "error_prone_annotations")
     exclude("com.google.j2objc", "j2objc-annotations")
     exclude("org.codehaus.mojo", "animal-sniffer-annotations")
   }
-  compileOnly("com.fasterxml.jackson.core:jackson-databind:2.9.8")
+  compileOnly("com.fasterxml.jackson.core:jackson-databind:2.10.1")
 
-  testImplementation("io.kotlintest:kotlintest-runner-junit5:3.2.1")
-  testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8")
+  testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
+  testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.10.1")
 }
 
 

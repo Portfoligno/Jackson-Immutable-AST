@@ -8,12 +8,12 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - gradle-DoPmHT-{{ checksum "build.gradle.kts" }}
-            - gradle-DoPmHT-
+            - gradle-xQBKmvJv-{{ checksum "build.gradle.kts" }}
+            - gradle-xQBKmvJv-
       - run: |
           gradle test
       - save_cache:
-          key: gradle-DoPmHT-{{ checksum "build.gradle.kts" }}
+          key: gradle-xQBKmvJv-{{ checksum "build.gradle.kts" }}
           paths: ~/.gradle
       - run:
           command: |

@@ -394,7 +394,7 @@ data class JsonArray(private val elements: ImmutableList<Json>) : JsonCollection
   @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator) {
-    generator.writeStartArray(elements.size)
+    generator.writeStartArray(this, elements.size)
     elements.forEach {
       it.toTokens(generator)
     }
@@ -425,7 +425,7 @@ data class JsonObject(private val elements: ImmutableMap<String, Json>) : JsonCo
   @JvmSynthetic
   override
   fun toTokens(generator: JsonGenerator) {
-    generator.writeStartObject(this)
+    generator.writeStartObject(this, elements.size)
     elements.forEach { (k, v) ->
       generator.writeFieldName(k)
       v.toTokens(generator)

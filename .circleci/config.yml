@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: justincasetech/gradle:6.0.1
+      - image: sdyip/gradle:6.8.1
     steps:
       - checkout
       - restore_cache:

@@ -7,9 +7,7 @@ import com.fasterxml.jackson.databind.node.POJONode
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.treeToValue
-import io.github.portfoligno.json.ast.Json
-import io.github.portfoligno.json.ast.JsonFalse
-import io.github.portfoligno.json.ast.JsonNull
+import io.github.portfoligno.json.ast.*
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 
@@ -43,5 +41,12 @@ class JsonCodecSpec : StringSpec({
   """plainValue should have the same output""" {
     val json = m.convertValue<Json>(this)
     m.writeValueAsString(json.plainValue) shouldBe m.writeValueAsString(json)
+  }
+
+  """readValue as `JsonScalar` should work""" {
+    m.readValue<JsonScalar>("1")
+  }
+  """readValue as `JsonPrimitive` should work""" {
+    m.readValue<JsonPrimitive>("1")
   }
 })

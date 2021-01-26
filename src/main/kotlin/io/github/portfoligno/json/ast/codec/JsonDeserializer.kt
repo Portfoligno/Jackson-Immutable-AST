@@ -66,9 +66,9 @@ class JsonNonNullDeserializer : BaseDeserializer<JsonNonNull>() {
 
 
 internal
-class JsonPrimitiveDeserializer : BaseDeserializer<JsonPrimitive>() {
+class JsonScalarDeserializer : BaseDeserializer<JsonScalar>() {
   override
-  fun invoke(p: JsonParser, context: DeserializationContext): JsonPrimitive =
+  fun invoke(p: JsonParser, context: DeserializationContext): JsonScalar =
       when (p.currentToken()) {
         VALUE_STRING -> JsonStringDeserializer(p, context)
         VALUE_NUMBER_INT -> JsonIntegralDeserializer(p, context)

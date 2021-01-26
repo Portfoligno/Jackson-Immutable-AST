@@ -111,8 +111,12 @@ sealed class JsonNonNull : Json() {
 }
 
 
-@JsonDeserialize(using = JsonPrimitiveDeserializer::class)
-sealed class JsonPrimitive : JsonNonNull()
+@JsonDeserialize(using = JsonScalarDeserializer::class)
+sealed class JsonScalar : JsonNonNull()
+
+@Deprecated("Name revisited", ReplaceWith("JsonScalar"))
+@JsonDeserialize(using = JsonScalarDeserializer::class)
+sealed class JsonPrimitive : JsonScalar()
 
 @JsonDeserialize(using = JsonCollectionDeserializer::class)
 sealed class JsonCollection : JsonNonNull()

@@ -46,13 +46,21 @@ sealed class Json {
         }
 
 
-    // Default `toBigDecimal` causes loss of precisions
+    /**
+     * Fix broken numeric equality, so that for all `a: Float` and `b: Double`,
+     *
+     * `a.toBigDecimal().compareTo(b.toBigDecimal()) == 0` if and only if `a.toDouble() == b`
+     */
     @JvmStatic
     protected
     fun Double.toBigDecimal() =
         BigDecimal(this)
 
-    // Default `toBigDecimal` causes loss of precisions
+    /**
+     * Fix broken numeric equality, so that for all `a: Float` and `b: Double`,
+     *
+     * `a.toBigDecimal().compareTo(b.toBigDecimal()) == 0` if and only if `a.toDouble() == b`
+     */
     @JvmStatic
     protected
     fun Float.toBigDecimal() =
